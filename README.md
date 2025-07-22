@@ -1,61 +1,119 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Dockerfile
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project is designed to set up a Laravel environment using Docker. It leverages the `dunglas/frankenphp` Docker image to provide a PHP runtime, MySQL for the database, and Caddy as the web server. The Docker Compose file defines the
+services needed to run the application.
 
-## About Laravel
+## Background
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The goal of this project is to create a simple, isolated environment for developing and running a Laravel application in a Docker container. By using Docker, you can ensure consistency across different environments (e.g., development, testing, production), while avoiding issues related to local machine configurations.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Project Structure
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Here is an overview of the important files in the project:
 
-## Learning Laravel
+- **Dockerfile**: Defines the PHP environment, including necessary extensions for Laravel (`pdo_mysql`, `gd`, `intl`, `zip`, `opcache`), and installs Composer.
+- **docker-compose.yml**: Configures the necessary services: MySQL for the database, and the application service using the Dockerfile you provided. It also configures volumes for persistence and environment variables.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Setup Instructions
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Prerequisites
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Before starting the project, ensure that you have the following installed:
 
-## Laravel Sponsors
+1. **Docker**: The project uses Docker and Docker Compose. Follow the [Docker installation guide](https://docs.docker.com/get-docker/) for your operating system.
+2. **Git**: You'll need Git to clone the repository. Follow the [Git installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) if you don't have it.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Steps to Set Up
 
-### Premium Partners
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/nielxfb/laravel-dockerfile.git
+   cd laravel-dockerfile
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+2. **Copy `.env.example` to `.env`**:
+   After cloning the repository, you need to copy the `.env.example` file to `.env` and fill in the necessary values, such as database credentials, app settings, etc. You can do this with the following command:
 
-## Contributing
+   ```bash
+   cp .env.example .env
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   Then, open the `.env` file and configure it according to your environment, especially the database credentials.
 
-## Code of Conduct
+3. **Build and start the Docker containers**:
+   Using `docker-compose`, you can easily build and start the services defined in `docker-compose.yml`:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```bash
+   docker compose up --build
+   ```
 
-## Security Vulnerabilities
+   This command will:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   * Build the `app` service using the `Dockerfile`.
+   * Pull the `mysql:8.0-debian` image for the database service.
+   * Set up the necessary volumes for data persistence.
 
-## License
+4. **Access the Laravel Application**:
+   Once the containers are up and running, open your browser and navigate to `http://localhost`. You should see the Laravel welcome page.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. **Database Configuration**:
+
+   * The MySQL service is accessible via port `3306` on your local machine.
+   * The database name is `laravel_dockerfile`, and the root password is set to `root`.
+   * In your `.env` file for Laravel, make sure the database connection settings are configured correctly:
+
+     ```env
+     DB_CONNECTION=mysql
+     DB_HOST=db
+     DB_PORT=3306
+     DB_DATABASE=laravel_dockerfile
+     DB_USERNAME=root
+     DB_PASSWORD=root
+     ```
+
+6. **Install Composer Dependencies**:
+   The `docker-compose.yml` file already runs `composer install` during the container build process, so you shouldn't need to manually install dependencies. However, if you need to install or update dependencies, you can do so by running:
+
+   ```bash
+   docker compose exec app composer install
+   ```
+
+7. **Access the Application Logs**:
+   You can check the application logs using the following command:
+
+   ```bash
+   docker compose logs -f app
+   ```
+
+8. **Stop the Application**:
+   To stop the application and remove the containers, run:
+
+   ```bash
+   docker compose down
+   ```
+
+### Directory Structure
+
+* `Dockerfile`: Contains the Docker instructions for building the Laravel PHP environment.
+* `docker-compose.yml`: Configures the services for the application and database.
+* `.env`: Environment variables for the Laravel application.
+* `app/`: The Laravel application source code.
+* `mysql-data/`: Persistent storage for MySQL data.
+
+## Dockerfile Explanation
+
+The `Dockerfile` provided in the project is used to build the PHP environment for Laravel. Here are the key components:
+
+1. **Base Image**: The project uses `dunglas/frankenphp` as the base image, which provides a PHP runtime optimized for running Laravel applications.
+2. **PHP Extensions**: Several PHP extensions are installed using the `install-php-extensions` command:
+
+   * `pdo_mysql`: Required for MySQL database support.
+   * `gd`: Image manipulation library used by Laravel.
+   * `intl`: Provides internationalization support.
+   * `zip`: Allows zip file handling.
+   * `opcache`: Improves performance by caching compiled PHP code.
+3. **Composer**: Composer is used for managing PHP dependencies. The `composer install` command installs the dependencies as defined in the `composer.json` file.
+
+## Conclusion
+
+This Docker setup provides an isolated and reproducible environment for developing Laravel applications. By using Docker Compose, it's easy to manage the application, database, and web server in a single configuration. This setup ensures that you can develop, test, and deploy your Laravel application without worrying about differences between environments.
