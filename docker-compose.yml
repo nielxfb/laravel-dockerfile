@@ -4,10 +4,24 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel_dockerfile
     volumes:
       - ./mysql-data:/var/lib/mysql
     ports:
       - 3306:3306
+  app:
+    build: .
+    ports:
+      - 80:80
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
 
 volumes:
   mysql-data:
+  caddy_data:
+  caddy_config:
